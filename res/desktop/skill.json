@@ -1,0 +1,21 @@
+{
+  "name": "Old World Radio Skill",
+  "skillname": "skill-old-world-radio",
+  "authorname": "JarbasSkills",
+  "foldername": "",
+  "url": "https://github.com/JarbasSkills/skill-old-world-radio",
+  "branch": "master",
+  "desktopFile": false,
+  "warning": "",
+  "systemDeps": false,
+  "platforms": [
+    "arm",
+    "arm64",
+    "i386",
+    "x86_64",
+    "ia64"
+  ],
+  "examples": [
+    "play old world radio"
+  ]
+}
