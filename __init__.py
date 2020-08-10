@@ -24,6 +24,7 @@ class OldWorldRadioSkill(CommonPlaySkill):
 
     def CPS_match_query_phrase(self, phrase):
         match = None
+        phrase = "play " + phrase
         url = self.old_world
 
         if self.voc_match(phrase, "old_world"):
@@ -64,6 +65,7 @@ class OldWorldRadioSkill(CommonPlaySkill):
     def get_stream(self, url):
 
         ydl_opts = {
+            'format': "91",
             "no_color": True
         }
 
