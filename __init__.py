@@ -1,13 +1,13 @@
-from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
-from mycroft.messagebus import Message
+from mycroft.skills.common_play_skill import CommonPlaySkill, \
+    CPSMatchLevel, CPSMatchType
 import youtube_dl
 from os.path import join, dirname
 
 
 class OldWorldRadioSkill(CommonPlaySkill):
-    vintage = "https://www.youtube.com/watch?v=tb0B3auGbtA"
-    old_world = "https://www.youtube.com/watch?v=tzBGEqkwCoY"
-    logo = join(dirname(__file__), "ui", "logo.jpg")
+    def __init__(self):
+        super().__init__()
+        self.supported_media = [CPSMatchType.RADIO]
 
     def initialize(self):
         self.add_event('skill-old-world-radio.jarbasskills.home',
@@ -15,62 +15,33 @@ class OldWorldRadioSkill(CommonPlaySkill):
 
     def get_intro_message(self):
         self.speak_dialog("intro")
-        self.gui.show_image(self.logo)
+        self.gui.show_image(join(dirname(__file__), "ui", "logo.jpg"))
 
     # homescreen
     def handle_homescreen(self, message):
         self.CPS_start("play old world radio",
                        {"url": self.old_world})
 
-    def CPS_match_query_phrase(self, phrase):
-        match = None
-        phrase = "play " + phrase
-        url = self.old_world
+    def CPS_match_query_phrase(self, phrase, media_type):
+        match = CPSMatchLevel.GENERIC
+        url = "https://www.youtube.com/watch?v=tzBGEqkwCoY"
 
         if self.voc_match(phrase, "old_world"):
-            if self.voc_match(phrase, "radio"):
-                match = CPSMatchLevel.EXACT
-            else:
-                match = CPSMatchLevel.TITLE
+            match = CPSMatchLevel.EXACT
         elif self.voc_match(phrase, "vintage"):
-            url = self.vintage
-            if self.voc_match(phrase, "radio"):
-                match = CPSMatchLevel.EXACT
-            else:
-                match = CPSMatchLevel.TITLE
-        elif self.voc_match(phrase, "radio"):
-            match = CPSMatchLevel.GENERIC
+            url = "https://www.youtube.com/watch?v=tb0B3auGbtA"
+            match = CPSMatchLevel.TITLE
 
-        if match is not None:
-            return (phrase, match, {"url": url})
-        return None
+        return (phrase, match, {"url": url})
 
     def CPS_start(self, phrase, data):
-        url = self.get_stream(data["url"])
-        self.audioservice.play(url, utterance="vlc")
-        self.CPS_send_status()
-
-    def CPS_send_status(self, artist='', track='', image='', genre="",
-                        album=""):
-        data = {'skill': self.name,
-                'artist': artist or "old world radio",
-                'track': track or "old world radio",
-                'image': image or self.logo,
-                'genre': genre or "vintage radio",
-                "album": album or "old world radio",
-                'status': None  # TODO Add status system
-                }
-        self.bus.emit(Message('play:status', data))
-
-    def get_stream(self, url):
-
         ydl_opts = {
             'format': "91",
             "no_color": True
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            result = ydl.extract_info(url,
+            result = ydl.extract_info(data["url"],
                                       download=False
                                       # We just want to extract the info
                                       )
@@ -82,9 +53,8 @@ class OldWorldRadioSkill(CommonPlaySkill):
                 # Just a video
                 video = result
 
-            return video['url']
+        self.audioservice.play(video['url'], utterance="vlc")
 
 
 def create_skill():
     return OldWorldRadioSkill()
-
