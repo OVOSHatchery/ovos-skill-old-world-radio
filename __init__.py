@@ -19,8 +19,9 @@ class OldWorldRadioSkill(CommonPlaySkill):
 
     # homescreen
     def handle_homescreen(self, message):
-        self.CPS_start("play old world radio",
-                       {"url": self.old_world})
+        # TODO selection menu
+        self.CPS_play("https://www.youtube.com/watch?v=tzBGEqkwCoY",
+                      utterance="vlc")
 
     def CPS_match_query_phrase(self, phrase, media_type):
         match = CPSMatchLevel.GENERIC
@@ -53,7 +54,7 @@ class OldWorldRadioSkill(CommonPlaySkill):
                 # Just a video
                 video = result
 
-        self.audioservice.play(video['url'], utterance="vlc")
+        self.CPS_play(video['url'], utterance="vlc")
 
 
 def create_skill():
