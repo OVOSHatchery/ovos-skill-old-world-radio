@@ -5,7 +5,7 @@
   "foldername": "",
   "url": "https://github.com/JarbasSkills/skill-old-world-radio",
   "branch": "master",
-  "desktopFile": false,
+  "desktopFile": true,
   "warning": "",
   "systemDeps": false,
   "platforms": [

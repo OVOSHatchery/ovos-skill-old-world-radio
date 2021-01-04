@@ -1,1 +1,4 @@
 youtube-dl
+pafy
+ovos_utils>=0.0.5
+py_VOD>=0.4.0

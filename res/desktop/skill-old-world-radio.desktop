@@ -3,7 +3,7 @@ Terminal=false
 Type=Application
 Name=OldWorldRadio
 Exec=mycroft-gui-app --hideTextInput --skill=skill-old-world-radio.jarbasskills.home
-Icon=icon.png
+Icon=old-world-radio.png
 Categories=VoiceApp
 StartupNotify=false
 X-DBUS-StartupType=None
