@@ -1,13 +1,14 @@
 from ovos_utils.skills.templates.media_player import MediaSkill, \
     CPSMatchType, CPSMatchLevel, CPSTrackStatus
 from os.path import join, dirname
-import pyvod
 
 
 class OldWorldRadioSkill(MediaSkill):
     def __init__(self):
         super().__init__()
         self.settings["audio_only"] = True
+        self.settings["preferred_audio_backend"] = "vlc"
+        self.settings["audio_with_video_stream"] = True
         self.supported_media = [CPSMatchType.RADIO]
         self.default_bg = join(dirname(__file__), "ui", "logo.png")
         self.default_image = join(dirname(__file__), "ui", "background.jpg")
@@ -36,17 +37,6 @@ class OldWorldRadioSkill(MediaSkill):
                      "image": image, "background": self.default_bg,
                      "stream": url})
         return None
-
-    def CPS_start(self, phrase, data):
-        bg = data.get("background") or self.default_bg
-        image = data.get("image") or self.default_image
-        url = pyvod.utils.get_video_stream(data["stream"])
-        self.CPS_send_status(uri=url,
-                             image=image,
-                             background_image=bg,
-                             playlist_position=0,
-                             status=CPSTrackStatus.PLAYING_AUDIOSERVICE)
-        self.audioservice.play(url, utterance=self.play_service_string)
 
 
 def create_skill():
