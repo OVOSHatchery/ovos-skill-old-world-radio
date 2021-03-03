@@ -1,42 +1,83 @@
-from ovos_utils.skills.templates.media_player import MediaSkill, \
-    CPSMatchType, CPSMatchLevel, CPSTrackStatus
+from ovos_utils.skills.templates.common_play import BetterCommonPlaySkill
+from ovos_utils.playback import CPSMatchType, CPSPlayback, CPSMatchConfidence
 from os.path import join, dirname
 
 
-class OldWorldRadioSkill(MediaSkill):
+class OldWorldRadioSkill(BetterCommonPlaySkill):
     def __init__(self):
         super().__init__()
-        self.settings["audio_only"] = True
-        self.settings["preferred_audio_backend"] = "vlc"
-        self.settings["audio_with_video_stream"] = True
-        self.supported_media = [CPSMatchType.RADIO]
+        self.supported_media = [CPSMatchType.RADIO, CPSMatchType.GENERIC]
         self.default_bg = join(dirname(__file__), "ui", "logo.png")
         self.default_image = join(dirname(__file__), "ui", "background.jpg")
-        self.message_namespace = 'skill-old-world-radio.jarbasskills.home'
-        self.bootstrap_list = ["https://www.youtube.com/watch?v=tzBGEqkwCoY"]
+        self.skill_logo = join(dirname(__file__), "ui", "old-world-radio.png")
+        self.skill_icon = join(dirname(__file__), "ui", "old-world-radio.png")
 
     def get_intro_message(self):
         self.speak_dialog("intro")
         self.gui.show_image(join(dirname(__file__), "ui", "logo.jpg"))
 
-    def CPS_match_query_phrase(self, phrase, media_type):
-        match = CPSMatchLevel.GENERIC
-        url = "https://www.youtube.com/watch?v=tzBGEqkwCoY"
-        image = join(dirname(__file__), "ui", "background.jpg")
+    # better common play
+    def CPS_search(self, phrase, media_type):
+        """Analyze phrase to see if it is a play-able phrase with this skill.
 
+        Arguments:
+            phrase (str): User phrase uttered after "Play", e.g. "some music"
+            media_type (CPSMatchType): requested CPSMatchType to search for
+
+        Returns:
+            search_results (list): list of dictionaries with result entries
+            {
+                "match_confidence": CPSMatchConfidence.HIGH,
+                "media_type":  CPSMatchType.MUSIC,
+                "uri": "https://audioservice.or.gui.will.play.this",
+                "playback": CPSPlayback.GUI,
+                "image": "http://optional.audioservice.jpg",
+                "bg_image": "http://optional.audioservice.background.jpg"
+            }
+        """
+
+        scores = {"old_world": 0,
+                  "vintage": 0}
         if self.voc_match(phrase, "old_world"):
-            match = CPSMatchLevel.EXACT
-        elif self.voc_match(phrase, "vintage"):
-            url = "https://www.youtube.com/watch?v=tb0B3auGbtA"
-            match = CPSMatchLevel.TITLE
-            image = join(dirname(__file__), "ui", "background2.jpg")
+            scores["old_world"] = 50
+            scores["vintage"] = 10
+        if self.voc_match(phrase, "vintage"):
+            scores["vintage"] += 50
 
-        if match is not None:
-            return (phrase, match,
-                    {"media_type": media_type, "query": phrase,
-                     "image": image, "background": self.default_bg,
-                     "stream": url})
-        return None
+        if media_type == CPSMatchType.RADIO:
+            scores["vintage"] += 30
+            scores["old_world"] += 30
+
+        return [
+            {
+                "match_confidence": min(100, scores["vintage"]),
+                "media_type": CPSMatchType.RADIO,
+                "uri": "https://www.youtube.com/watch?v=tb0B3auGbtA",
+                "playback": CPSPlayback.AUDIO,
+                "image": join(dirname(__file__), "ui", "background2.jpg"),
+                "bg_image": self.default_bg,
+                "skill_icon": self.skill_icon,
+                "skill_logo": self.skill_logo,
+                "title": "VINTAGE RADIO",
+                "author": "Old World Radio",
+                "album": "LIVE OLDIES 24/7!",
+                'length': 0
+            },
+            {
+                "match_confidence": min(100, scores["old_world"]),
+                "media_type": CPSMatchType.RADIO,
+                "uri": "https://www.youtube.com/watch?v=tzBGEqkwCoY",
+                "playback": CPSPlayback.AUDIO,
+                "image":  join(dirname(__file__), "ui", "background.jpg"),
+                "bg_image": self.default_bg,
+                "skill_icon": self.skill_icon,
+                "skill_logo": self.skill_logo,
+                "title": "Old World Radio",
+                "author": "Old World Radio",
+                "album": "Old World Radio",
+                'length': 0
+
+            }]
 
 
 def create_skill():
