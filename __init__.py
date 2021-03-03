@@ -47,6 +47,11 @@ class OldWorldRadioSkill(BetterCommonPlaySkill):
         if media_type == CPSMatchType.RADIO:
             scores["vintage"] += 30
             scores["old_world"] += 30
+        elif not self.voc_match(phrase, "radio"):
+            return []
+        else:
+            scores["vintage"] += 10
+            scores["old_world"] += 10
 
         return [
             {
