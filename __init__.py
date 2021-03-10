@@ -1,90 +1,89 @@
-from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
-from mycroft.messagebus import Message
-import youtube_dl
+from ovos_utils.skills.templates.common_play import BetterCommonPlaySkill
+from ovos_utils.playback import CPSMatchType, CPSPlayback, CPSMatchConfidence
 from os.path import join, dirname
 
 
-class OldWorldRadioSkill(CommonPlaySkill):
-    vintage = "https://www.youtube.com/watch?v=tb0B3auGbtA"
-    old_world = "https://www.youtube.com/watch?v=tzBGEqkwCoY"
-    logo = join(dirname(__file__), "ui", "logo.jpg")
-
-    def initialize(self):
-        self.add_event('skill-old-world-radio.jarbasskills.home',
-                       self.handle_homescreen)
+class OldWorldRadioSkill(BetterCommonPlaySkill):
+    def __init__(self):
+        super().__init__()
+        self.supported_media = [CPSMatchType.RADIO, CPSMatchType.GENERIC]
+        self.default_bg = join(dirname(__file__), "ui", "logo.png")
+        self.default_image = join(dirname(__file__), "ui", "background.jpg")
+        self.skill_logo = join(dirname(__file__), "ui", "old-world-radio.png")
+        self.skill_icon = join(dirname(__file__), "ui", "old-world-radio.png")
 
     def get_intro_message(self):
         self.speak_dialog("intro")
-        self.gui.show_image(self.logo)
+        self.gui.show_image(join(dirname(__file__), "ui", "logo.jpg"))
 
-    # homescreen
-    def handle_homescreen(self, message):
-        self.CPS_start("play old world radio",
-                       {"url": self.old_world})
+    # better common play
+    def CPS_search(self, phrase, media_type):
+        """Analyze phrase to see if it is a play-able phrase with this skill.
 
-    def CPS_match_query_phrase(self, phrase):
-        match = None
-        phrase = "play " + phrase
-        url = self.old_world
+        Arguments:
+            phrase (str): User phrase uttered after "Play", e.g. "some music"
+            media_type (CPSMatchType): requested CPSMatchType to search for
 
+        Returns:
+            search_results (list): list of dictionaries with result entries
+            {
+                "match_confidence": CPSMatchConfidence.HIGH,
+                "media_type":  CPSMatchType.MUSIC,
+                "uri": "https://audioservice.or.gui.will.play.this",
+                "playback": CPSPlayback.GUI,
+                "image": "http://optional.audioservice.jpg",
+                "bg_image": "http://optional.audioservice.background.jpg"
+            }
+        """
+
+        scores = {"old_world": 0,
+                  "vintage": 0}
         if self.voc_match(phrase, "old_world"):
-            if self.voc_match(phrase, "radio"):
-                match = CPSMatchLevel.EXACT
-            else:
-                match = CPSMatchLevel.TITLE
-        elif self.voc_match(phrase, "vintage"):
-            url = self.vintage
-            if self.voc_match(phrase, "radio"):
-                match = CPSMatchLevel.EXACT
-            else:
-                match = CPSMatchLevel.TITLE
-        elif self.voc_match(phrase, "radio"):
-            match = CPSMatchLevel.GENERIC
+            scores["old_world"] = 50
+            scores["vintage"] = 10
+        if self.voc_match(phrase, "vintage"):
+            scores["vintage"] += 50
 
-        if match is not None:
-            return (phrase, match, {"url": url})
-        return None
+        if media_type == CPSMatchType.RADIO:
+            scores["vintage"] += 30
+            scores["old_world"] += 30
+        elif not self.voc_match(phrase, "radio"):
+            return []
+        else:
+            scores["vintage"] += 10
+            scores["old_world"] += 10
 
-    def CPS_start(self, phrase, data):
-        url = self.get_stream(data["url"])
-        self.audioservice.play(url, utterance="vlc")
-        self.CPS_send_status()
+        return [
+            {
+                "match_confidence": min(100, scores["vintage"]),
+                "media_type": CPSMatchType.RADIO,
+                "uri": "https://www.youtube.com/watch?v=tb0B3auGbtA",
+                "playback": CPSPlayback.AUDIO,
+                "image": join(dirname(__file__), "ui", "background2.jpg"),
+                "bg_image": self.default_bg,
+                "skill_icon": self.skill_icon,
+                "skill_logo": self.skill_logo,
+                "title": "VINTAGE RADIO",
+                "author": "Old World Radio",
+                "album": "LIVE OLDIES 24/7!",
+                'length': 0
+            },
+            {
+                "match_confidence": min(100, scores["old_world"]),
+                "media_type": CPSMatchType.RADIO,
+                "uri": "https://www.youtube.com/watch?v=tzBGEqkwCoY",
+                "playback": CPSPlayback.AUDIO,
+                "image":  join(dirname(__file__), "ui", "background.jpg"),
+                "bg_image": self.default_bg,
+                "skill_icon": self.skill_icon,
+                "skill_logo": self.skill_logo,
+                "title": "Old World Radio",
+                "author": "Old World Radio",
+                "album": "Old World Radio",
+                'length': 0
 
-    def CPS_send_status(self, artist='', track='', image='', genre="",
-                        album=""):
-        data = {'skill': self.name,
-                'artist': artist or "old world radio",
-                'track': track or "old world radio",
-                'image': image or self.logo,
-                'genre': genre or "vintage radio",
-                "album": album or "old world radio",
-                'status': None  # TODO Add status system
-                }
-        self.bus.emit(Message('play:status', data))
-
-    def get_stream(self, url):
-
-        ydl_opts = {
-            'format': "91",
-            "no_color": True
-        }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            result = ydl.extract_info(url,
-                                      download=False
-                                      # We just want to extract the info
-                                      )
-
-            if 'entries' in result:
-                # Can be a playlist or a list of videos
-                video = result['entries'][0]
-            else:
-                # Just a video
-                video = result
-
-            return video['url']
+            }]
 
 
 def create_skill():
     return OldWorldRadioSkill()
-

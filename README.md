@@ -2,9 +2,12 @@
 
 Old world radio 
 
+![](./ui/logo.png)
+
 ## About 
 
-![](./ui/logo.png)
+
+![](./gui.gif)
 
 ## Examples 
 
