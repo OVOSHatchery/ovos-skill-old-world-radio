@@ -1,9 +1,10 @@
-from ovos_utils.skills.templates.common_play import BetterCommonPlaySkill
-from ovos_utils.playback import CPSMatchType, CPSPlayback, CPSMatchConfidence
+from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
+from ovos_workshop.frameworks.playback import CPSMatchType, CPSPlayback, \
+    CPSMatchConfidence
 from os.path import join, dirname
 
 
-class OldWorldRadioSkill(BetterCommonPlaySkill):
+class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
     def __init__(self):
         super().__init__()
         self.supported_media = [CPSMatchType.RADIO, CPSMatchType.GENERIC]
