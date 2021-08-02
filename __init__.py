@@ -36,12 +36,11 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
                 "bg_image": "http://optional.audioservice.background.jpg"
             }
         """
-
         scores = {"old_world": 0,
                   "storyteller": 0}
         if self.voc_match(phrase, "old_world"):
             scores["old_world"] = 50
-            scores["storyteller"] = 10
+            scores["storyteller"] = 20
         if self.voc_match(phrase, "vintage"):
             scores["old_world"] += 40
             scores["storyteller"] += 10
@@ -52,10 +51,8 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
             scores["storyteller"] += 10
             scores["old_world"] += 30
         elif not self.voc_match(phrase, "radio"):
-            return []
-        else:
-            scores["storyteller"] += 5
-            scores["old_world"] += 10
+            scores["old_world"] = 15
+            scores["storyteller"] -= 15
 
         return [
             {
