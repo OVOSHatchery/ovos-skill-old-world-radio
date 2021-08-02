@@ -38,41 +38,44 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
         """
 
         scores = {"old_world": 0,
-                  "vintage": 0}
+                  "storyteller": 0}
         if self.voc_match(phrase, "old_world"):
             scores["old_world"] = 50
-            scores["vintage"] = 10
+            scores["storyteller"] = 10
         if self.voc_match(phrase, "vintage"):
-            scores["vintage"] += 50
+            scores["old_world"] += 40
+            scores["storyteller"] += 10
+        if self.voc_match(phrase, "storyteller"):
+            scores["storyteller"] += 40
 
         if media_type == CPSMatchType.RADIO:
-            scores["vintage"] += 30
+            scores["storyteller"] += 10
             scores["old_world"] += 30
         elif not self.voc_match(phrase, "radio"):
             return []
         else:
-            scores["vintage"] += 10
+            scores["storyteller"] += 5
             scores["old_world"] += 10
 
         return [
             {
-                "match_confidence": min(100, scores["vintage"]),
+                "match_confidence": min(100, scores["storyteller"]),
                 "media_type": CPSMatchType.RADIO,
-                "uri": "https://www.youtube.com/watch?v=tb0B3auGbtA",
+                "uri": "https://www.youtube.com/watch?v=SWxEH7OcNn8",
                 "playback": CPSPlayback.AUDIO,
-                "image": join(dirname(__file__), "ui", "background2.jpg"),
+                "image": join(dirname(__file__), "ui", "background3.jpg"),
                 "bg_image": self.default_bg,
                 "skill_icon": self.skill_icon,
                 "skill_logo": self.skill_logo,
-                "title": "VINTAGE RADIO",
+                "title": "Storyteller's Old World Tunes and Tales",
                 "author": "Old World Radio",
-                "album": "LIVE OLDIES 24/7!",
+                "album": "Storyteller's Old World Tunes and Tales - Live 24/7",
                 'length': 0
             },
             {
                 "match_confidence": min(100, scores["old_world"]),
                 "media_type": CPSMatchType.RADIO,
-                "uri": "https://www.youtube.com/watch?v=tzBGEqkwCoY",
+                "uri": "https://www.youtube.com/watch?v=Ya3WXzEBL1E",
                 "playback": CPSPlayback.AUDIO,
                 "image":  join(dirname(__file__), "ui", "background.jpg"),
                 "bg_image": self.default_bg,
@@ -80,7 +83,7 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
                 "skill_logo": self.skill_logo,
                 "title": "Old World Radio",
                 "author": "Old World Radio",
-                "album": "Old World Radio",
+                "album": "Fallout Radio - Live 24/7",
                 'length': 0
 
             }]
