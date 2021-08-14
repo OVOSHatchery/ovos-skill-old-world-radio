@@ -1,13 +1,13 @@
 from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
-from ovos_workshop.frameworks.playback import CPSMatchType, CPSPlayback, \
-    CPSMatchConfidence
+from ovos_workshop.frameworks.playback import CommonPlayMediaType, CommonPlayPlaybackType, \
+    CommonPlayMatchConfidence
 from os.path import join, dirname
 
 
 class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
     def __init__(self):
         super().__init__()
-        self.supported_media = [CPSMatchType.RADIO, CPSMatchType.GENERIC]
+        self.supported_media = [CommonPlayMediaType.RADIO, CommonPlayMediaType.GENERIC]
         self.default_bg = join(dirname(__file__), "ui", "logo.png")
         self.default_image = join(dirname(__file__), "ui", "background.jpg")
         self.skill_logo = join(dirname(__file__), "ui", "old-world-radio.png")
@@ -23,15 +23,15 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
 
         Arguments:
             phrase (str): User phrase uttered after "Play", e.g. "some music"
-            media_type (CPSMatchType): requested CPSMatchType to search for
+            media_type (CommonPlayMediaType): requested CPSMatchType to search for
 
         Returns:
             search_results (list): list of dictionaries with result entries
             {
-                "match_confidence": CPSMatchConfidence.HIGH,
+                "match_confidence": CommonPlayMatchConfidence.HIGH,
                 "media_type":  CPSMatchType.MUSIC,
                 "uri": "https://audioservice.or.gui.will.play.this",
-                "playback": CPSPlayback.GUI,
+                "playback": CommonPlayPlaybackType.GUI,
                 "image": "http://optional.audioservice.jpg",
                 "bg_image": "http://optional.audioservice.background.jpg"
             }
@@ -47,7 +47,7 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
         if self.voc_match(phrase, "storyteller"):
             scores["storyteller"] += 40
 
-        if media_type == CPSMatchType.RADIO:
+        if media_type == CommonPlayMediaType.RADIO:
             scores["storyteller"] += 10
             scores["old_world"] += 30
         elif not self.voc_match(phrase, "radio"):
@@ -57,9 +57,9 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
         return [
             {
                 "match_confidence": min(100, scores["storyteller"]),
-                "media_type": CPSMatchType.RADIO,
+                "media_type": CommonPlayMediaType.RADIO,
                 "uri": "https://www.youtube.com/watch?v=SWxEH7OcNn8",
-                "playback": CPSPlayback.AUDIO,
+                "playback": CommonPlayPlaybackType.AUDIO,
                 "image": join(dirname(__file__), "ui", "background3.jpg"),
                 "bg_image": self.default_bg,
                 "skill_icon": self.skill_icon,
@@ -71,9 +71,9 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
             },
             {
                 "match_confidence": min(100, scores["old_world"]),
-                "media_type": CPSMatchType.RADIO,
+                "media_type": CommonPlayMediaType.RADIO,
                 "uri": "https://www.youtube.com/watch?v=Ya3WXzEBL1E",
-                "playback": CPSPlayback.AUDIO,
+                "playback": CommonPlayPlaybackType.AUDIO,
                 "image":  join(dirname(__file__), "ui", "background.jpg"),
                 "bg_image": self.default_bg,
                 "skill_icon": self.skill_icon,
