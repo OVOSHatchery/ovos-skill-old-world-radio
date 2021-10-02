@@ -1,7 +1,8 @@
-from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
-from ovos_plugin_common_play.ocp import MediaType, PlaybackType, \
-    MatchConfidence
 from os.path import join, dirname
+
+from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
+    MediaType, PlaybackType, \
+    ocp_search
 
 
 class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
@@ -18,7 +19,8 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
         self.gui.show_image(join(dirname(__file__), "ui", "logo.jpg"))
 
     # better common play
-    def CPS_search(self, phrase, media_type):
+    @ocp_search()
+    def search(self, phrase, media_type):
         """Analyze phrase to see if it is a play-able phrase with this skill.
 
         Arguments:
@@ -74,7 +76,7 @@ class OldWorldRadioSkill(OVOSCommonPlaybackSkill):
                 "media_type": MediaType.RADIO,
                 "uri": "https://www.youtube.com/watch?v=Ya3WXzEBL1E",
                 "playback": PlaybackType.AUDIO,
-                "image":  join(dirname(__file__), "ui", "background.jpg"),
+                "image": join(dirname(__file__), "ui", "background.jpg"),
                 "bg_image": self.default_bg,
                 "skill_icon": self.skill_icon,
                 "skill_logo": self.skill_logo,
